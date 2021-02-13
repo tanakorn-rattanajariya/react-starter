@@ -1,3 +1,4 @@
+import { api } from "../../nredux.config";
 //API
 const APIs = ["LIST", "GET", "POST", "PUT", "DEL", "CLEAR"];
 //TYPES
@@ -40,12 +41,15 @@ function createInteract(base) {
   }, {});
 }
 
-const API = createAPI("API");
-const ROUTING_REQUEST = "ROUTING_REQUEST";
+const requests = (api || []).reduce(
+  (a, b) => ({
+    ...a,
+    [`${b.toUpperCase()}_REQUEST`]: `${b.toUpperCase()}_REQUEST`,
+  }),
+  {}
+);
 
+const API = createAPI("API");
 const INTERACT = createInteract("INTERACT");
 const INTERACT_REQUEST = "INTERACT_REQUEST";
-const ROUTING_REQUEST_INTERVAL = "ROUTING_REQUEST_INTERVAL";
-const QUEUE_REQUEST = "QUEUE_REQUEST";
-
-export { API, COMPONENT, INTERACT_REQUEST, INTERACT };
+export { API, COMPONENT, INTERACT_REQUEST, INTERACT,requests };

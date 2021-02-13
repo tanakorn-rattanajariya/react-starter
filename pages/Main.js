@@ -1,4 +1,5 @@
 import stylesheet from "styles/index.less";
+import { api } from "../nredux.config";
 import { connect } from "react-redux";
 import Head from "next/head";
 import { Row, Col, message } from "antd";
@@ -16,8 +17,31 @@ const mapDispatchToProps = (dispatch) => ({
   action: {
     interact: (api, doc, item) =>
       dispatch(actions.interact.call(api, doc, item)),
+    ...(api || []).reduce(
+      (a, b) => ({
+        ...a,
+        [b]: createDispatcher({ dispatch, service: `${b}_request` }),
+      }),
+      {}
+    ),
   },
 });
+function createDispatcher({ dispatch, service }) {
+  return {
+    get: (doc, item, id, props) =>
+      dispatch(actions[service]("GET", doc, item, id, props)),
+    list: (doc, item, id, props) =>
+      dispatch(actions[service]("LIST", doc, item, id, props)),
+    post: (doc, item, id, props) =>
+      dispatch(actions[service]("POST", doc, item, id, props)),
+    put: (doc, item, id, props) =>
+      dispatch(actions[service]("PUT", doc, item, id, props)),
+    delete: (doc, item, id, props) =>
+      dispatch(actions[service]("DEL", doc, item, id, props)),
+    clear: (doc, item, id, props) =>
+      dispatch(actions[service]("CLEAR", doc, item, id, props)),
+  };
+}
 function errorMessage(error) {
   message.error(error);
 }
@@ -38,6 +62,7 @@ function Main(props) {
       successMessage();
     }
   }, [success]);
+  console.log(props.action.example.list());
   return (
     <Navigator fullscreen={fullscreen} noLayout={noLayout}>
       <Head>
