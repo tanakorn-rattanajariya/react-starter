@@ -6,6 +6,16 @@ export default function Home() {
   return (
     <Main>
       <Card title="wow">Test</Card>
+      <ComponentDidMount />
+      <MainComponent />
     </Main>
   );
+}
+
+function ComponentDidMount(props){
+  const { action } = props;
+  return <></>;
+}
+function MainComponent(props) {
+  return <></>;
 }

@@ -1,4 +1,4 @@
-export default class Super {
+export default class useNReduxReducer {
   doc = "";
   api = "";
   constructor({ state, action }) {

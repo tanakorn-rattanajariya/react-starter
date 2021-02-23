@@ -1,3 +1,5 @@
+import { classes } from "../nredux.config";
+import actions from "actions";
 Number.prototype.format = function (n, x) {
   const re = "\\d(?=(\\d{" + (x || 3) + "})+" + (n > 0 ? "\\." : "$") + ")";
   return this.toFixed(Math.max(0, ~~n)).replace(new RegExp(re, "g"), "$&,");
@@ -44,6 +46,48 @@ Array.prototype.unique = function () {
 function toSorter(a, b) {
   return a.localeCompare(b);
 }
-export default {
-  dateFormat: "DD-MM-YYYY",
-};
+function createDispatcher({ dispatch, service }) {
+  return (classes || [])
+    .map((v) => {
+      return {
+        [`get${v.substr(0, 1).toUpperCase()}${v.substr(1, v.length)}`]: (
+          item,
+          id,
+          props
+        ) =>
+          dispatch(actions[service]("GET", v.toUpperCase(), item, id, props)),
+        [`list${v.substr(0, 1).toUpperCase()}${v.substr(1, v.length)}`]: (
+          item,
+          id,
+          props
+        ) =>
+          dispatch(actions[service]("LIST", v.toUpperCase(), item, id, props)),
+        [`post${v.substr(0, 1).toUpperCase()}${v.substr(1, v.length)}`]: (
+          item,
+          id,
+          props
+        ) =>
+          dispatch(actions[service]("POST", v.toUpperCase(), item, id, props)),
+        [`put${v.substr(0, 1).toUpperCase()}${v.substr(1, v.length)}`]: (
+          item,
+          id,
+          props
+        ) =>
+          dispatch(actions[service]("PUT", v.toUpperCase(), item, id, props)),
+        [`delete${v.substr(0, 1).toUpperCase()}${v.substr(1, v.length)}`]: (
+          item,
+          id,
+          props
+        ) =>
+          dispatch(actions[service]("DEL", v.toUpperCase(), item, id, props)),
+        [`clear${v.substr(0, 1).toUpperCase()}${v.substr(1, v.length)}`]: (
+          item,
+          id,
+          props
+        ) =>
+          dispatch(actions[service]("CLEAR", v.toUpperCase(), item, id, props)),
+      };
+    })
+    .reduce((a, b) => ({ ...a, ...b }), {});
+}
+export { createDispatcher };

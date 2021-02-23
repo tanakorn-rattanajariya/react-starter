@@ -1,4 +1,4 @@
-import { api } from "../../nredux.config";
+import { api, classes } from "../../nredux.config";
 //API
 const APIs = ["LIST", "GET", "POST", "PUT", "DEL", "CLEAR"];
 //TYPES
@@ -29,16 +29,20 @@ function createDoc(base, docs, is_interact) {
   }, {});
 }
 function createAPI(base) {
-  return ["ROUTING"].reduce((acc, type) => {
-    acc[type] = createDoc(`${base}_${type}`, services);
-    return acc;
-  }, {});
+  return (classes || [])
+    .map((v) => v.toUpperCase())
+    .reduce((acc, type) => {
+      acc[type] = createDoc(`${base}_${type}`, services);
+      return acc;
+    }, {});
 }
 function createInteract(base) {
-  return ["ROUTING"].reduce((acc, type) => {
-    acc[type] = createDoc(`${base}_${type}`, interacts, true);
-    return acc;
-  }, {});
+  return (classes || [])
+    .map((v) => v.toUpperCase())
+    .reduce((acc, type) => {
+      acc[type] = createDoc(`${base}_${type}`, interacts, true);
+      return acc;
+    }, {});
 }
 
 const requests = (api || []).reduce(

@@ -12,7 +12,7 @@ const call = Object.keys(requests || {})
       }),
     };
   })
-  .reduce((a, b) => ({ ...a, ...b }, {}));
+  .reduce((a, b) => ({ ...a, ...b }), {});
 export default {
   ...call,
 };

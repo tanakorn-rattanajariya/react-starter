@@ -175,7 +175,7 @@ function* clear({ doc }) {
   }
 }
 
-const _super = {
+const useNReduxSaga = {
   list,
   get,
   post,
@@ -187,5 +187,5 @@ const _super = {
   error,
   loading,
 };
-export default _super;
+export default useNReduxSaga;
 //Callback

@@ -20,7 +20,7 @@ export default function auth(state = initialState, action) {
       let _success = {
         ...state,
         loading: false,
-        success: true
+        success: true,
       };
       if (action.data) {
         _success[action.data] = null;
