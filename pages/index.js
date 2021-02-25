@@ -1,6 +1,5 @@
 import React from "react";
 import { Card } from "antd";
-import stylesheet from "../styles/index.less";
 import Main from "./Main";
 export default function Home() {
   return (
@@ -14,6 +13,10 @@ export default function Home() {
 
 function ComponentDidMount(props){
   const { action } = props;
+  React.useEffect(() => {
+    action.tester.listWarehouse();
+    action.interact.listWarehouse();
+  }, []);
   return <></>;
 }
 function MainComponent(props) {

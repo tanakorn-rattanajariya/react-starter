@@ -1,4 +1,4 @@
-import { requests } from "./type";
+import { INTERACT_REQUEST, requests } from "./type";
 const call = Object.keys(requests || {})
   .map((k) => {
     return {
@@ -15,4 +15,12 @@ const call = Object.keys(requests || {})
   .reduce((a, b) => ({ ...a, ...b }), {});
 export default {
   ...call,
+  interact_request: (api, doc, item, id, props) => ({
+    type: INTERACT_REQUEST,
+    api,
+    doc,
+    item,
+    id,
+    props,
+  }),
 };

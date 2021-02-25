@@ -1,19 +1,11 @@
 import stylesheet from "styles/index.less";
 import { api, classes } from "../nredux.config";
-import { useNReduxDispatcher } from "../nredux";
+import { useNReduxDispatcher,useNReduxMapping } from "../nredux";
 import { connect } from "react-redux";
 import Head from "next/head";
 import { Row, Col, message } from "antd";
 
 import { Navigator } from "components";
-const mapStateToProps = (state /*, ownProps*/) => {
-  return {
-    reducer: {
-      component: state.component,
-      interact: state.interact,
-    },
-  };
-};
 function errorMessage(error) {
   message.error(error);
 }
@@ -69,4 +61,4 @@ function Main(props) {
     </Navigator>
   );
 }
-export default connect(mapStateToProps, useNReduxDispatcher)(Main);
+export default connect(useNReduxMapping, useNReduxDispatcher)(Main);
