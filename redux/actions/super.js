@@ -1,5 +1,6 @@
-import { INTERACT_REQUEST, requests } from "./type";
-const call = Object.keys(requests || {})
+import { INTERACT_REQUEST } from "./type";
+import types from './type'
+const call = Object.keys(types || {})
   .map((k) => {
     return {
       [`${k.toLowerCase()}`]: (api, doc, item, id, props) => ({

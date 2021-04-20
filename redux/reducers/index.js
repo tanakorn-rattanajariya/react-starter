@@ -1,9 +1,11 @@
 import { combineReducers } from "redux";
 import component from "./component";
 import interact from "./interact";
+import example from './example'
 const reducers = combineReducers({
   component,
-  interact
+  interact,
+  example,
 });
 
 export default reducers;

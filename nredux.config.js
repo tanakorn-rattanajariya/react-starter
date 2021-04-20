@@ -1,4 +1,4 @@
 module.exports = {
-  api: ["example", "tester"],
-  classes: ["test", "warehouse"],
+  api: ["example"],
+  classes: ["test"],
 };

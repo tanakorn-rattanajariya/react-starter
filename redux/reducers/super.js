@@ -36,7 +36,6 @@ export default class useNReduxReducer {
     const { doc, api } = this;
     const data = doc.toLowerCase();
     const list = `${data}s`;
-    console.log("*****", this.type, _state);
     if (this.type === _state) {
       switch (api) {
         case "GET":

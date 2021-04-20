@@ -14,8 +14,7 @@ export default function Home() {
 function ComponentDidMount(props){
   const { action } = props;
   React.useEffect(() => {
-    action.tester.listWarehouse();
-    action.interact.listWarehouse();
+    action.example.listTest();
   }, []);
   return <></>;
 }
