@@ -55,13 +55,20 @@ function createAPI() {
     {}
   );
 }
-function createInteract(base) {
-  return (classes || [])
-    .map((v) => v.toUpperCase())
-    .reduce((acc, type) => {
-      acc[type] = createDoc(`${base}_${type}`, interacts, true);
-      return acc;
-    }, {});
+function createInteract() {
+  return classes.reduce(
+    (e, f) => ({
+      ...e,
+      [f.toUpperCase()]: APIs.reduce(
+        (g, h) => ({
+          ...g,
+          [h]: `INTERACT_${f.toUpperCase()}_${h}`,
+        }),
+        {}
+      ),
+    }),
+    {}
+  );
 }
 
 const requests = (api || []).reduce(
@@ -73,7 +80,7 @@ const requests = (api || []).reduce(
 );
 
 const API = createAPI();
-const INTERACT = createInteract("INTERACT");
+const INTERACT = createInteract();
 const INTERACT_REQUEST = "INTERACT_REQUEST";
 const types = { ...requests };
 export { API, COMPONENT, INTERACT_REQUEST, INTERACT };

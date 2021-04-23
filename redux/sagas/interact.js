@@ -1,7 +1,7 @@
 import { INTERACT_REQUEST, INTERACT, COMPONENT } from "../actions/type";
 import { put, fork, call, take, takeEvery, throttle } from "redux-saga/effects";
-import service from "../services";
-
+import _ from "./super";
+const { useInternalSaga ,error} = _;
 function* request(actions) {
   try {
     switch (actions.api) {
@@ -26,26 +26,11 @@ function* request(actions) {
 }
 
 function* clear(actions) {
+  const { doc, service } = actions;
   try {
     switch (actions.doc) {
-      case "ENDPOINT":
-        return yield put({
-          type: INTERACT.ROUTING.ENDPOINT.CLEAR,
-        });
-      case "CAR":
-        return yield put({
-          type: INTERACT.ROUTING.CAR.CLEAR,
-        });
-      case "CUSTOMER":
-        return yield put({
-          type: INTERACT.ROUTING.CUSTOMER.CLEAR,
-        });
-      case "ROUTE":
-        return yield put({
-          type: INTERACT.ROUTING.ROUTE.CLEAR,
-        });
       default:
-        return;
+        return yield call(useInternalSaga, { api: "CLEAR", doc, service });
     }
   } catch (e) {
     console.log(e);
@@ -53,20 +38,18 @@ function* clear(actions) {
   }
 }
 function* get(actions) {
+  const { doc, item, id, props, service } = actions;
   try {
     switch (actions.doc) {
-      case "ENDPOINT":
-        return yield put({
-          type: INTERACT.ROUTING.ENDPOINT.GET,
-          data: actions.item,
-        });
-      case "CUSTOMER":
-        return yield put({
-          type: INTERACT.ROUTING.CUSTOMER.GET,
-          data: actions.item,
-        });
       default:
-        return;
+        return yield call(useInternalSaga, {
+          api: "GET",
+          doc,
+          item,
+          id,
+          props,
+          service,
+        });
     }
   } catch (e) {
     console.log(e);
@@ -74,142 +57,68 @@ function* get(actions) {
   }
 }
 function* post(actions) {
+  const { doc, item, props, service } = actions;
   try {
     switch (actions.doc) {
-      case "ITEM":
-        return yield put({
-          type: INTERACT.ROUTING.ITEM.POST,
-          data: actions.item,
-        });
-      case "CAR":
-        return yield put({
-          type: INTERACT.ROUTING.CAR.POST,
-          data: actions.item,
-        });
-      case "ROUTE":
-        return yield put({
-          type: INTERACT.ROUTING.ROUTE.POST,
-          data: actions.item,
-        });
-      case "DC":
-        return yield put({
-          type: INTERACT.ROUTING.DC.POST,
-          data: actions.item,
-        });
-      case "SUBROUTE":
-        return yield put({
-          type: INTERACT.ROUTING.SUBROUTE.POST,
-          data: actions.item,
-        });
-      case "ENDPOINT":
-        yield put({
-          type: INTERACT.ROUTING.ENDPOINT.POST,
-          data: actions.item,
-        });
-        return history.back();
       default:
-        return;
+        return yield call(useInternalSaga, {
+          api: "POST",
+          doc,
+          item,
+          props,
+          service,
+        });
     }
   } catch (e) {
+    console.log(e);
     return yield call(error, e);
   }
 }
 function* change(actions) {
+  const { doc, item, props, id, service } = actions;
   try {
     switch (actions.doc) {
-      case "DRAW_CLEAR":
-        return yield put({
-          type: INTERACT.ROUTING.DRAW_CLEAR.PUT,
-        });
-      case "DRAW_START":
-        return yield put({
-          type: INTERACT.ROUTING.DRAW_START.PUT,
-        });
-      case "DRAW_MOVE":
-        return yield put({
-          type: INTERACT.ROUTING.DRAW_MOVE.PUT,
-          item: actions.item,
-        });
-      case "ENDPOINT":
-        yield put({
-          type: INTERACT.ROUTING.ENDPOINT.PUT,
-          data: { ...actions.item, _id: actions.item._id },
-        });
-        return history.back();
       default:
-        return;
+        return yield call(useInternalSaga, {
+          api: "PUT",
+          doc,
+          item,
+          props,
+          id,
+          service,
+        });
     }
   } catch (e) {
     return yield call(error, e);
   }
 }
 function* del(actions) {
+  const { doc, id, service } = actions;
   try {
     switch (actions.doc) {
-      case "ITEM":
-        return yield put({
-          type: INTERACT.ROUTING.ITEM.DEL,
-          data: actions.item,
-        });
-      case "CAR":
-        return yield put({
-          type: INTERACT.ROUTING.CAR.DEL,
-          data: actions.item.id,
-        });
-      case "ROUTE":
-        return yield put({
-          type: INTERACT.ROUTING.ROUTE.DEL,
-          data: actions.item.id,
-        });
-      case "ENDPOINT":
-        return yield put({
-          type: INTERACT.ROUTING.ENDPOINT.DEL,
-          data: actions.item.id,
-        });
       default:
-        return;
+        return yield call(useInternalSaga, { api: "DEL", doc, id, service });
     }
   } catch (e) {
     return yield call(error, e);
   }
 }
 function* list(actions) {
+  const { doc, item, props, service } = actions;
   try {
     switch (actions.doc) {
-      case "CAR":
-        return yield put({
-          type: INTERACT.ROUTING.CAR.LIST,
-          data: actions.item,
-        });
-      case "ENDPOINT":
-        return yield put({
-          type: INTERACT.ROUTING.ENDPOINT.LIST,
-          data: actions.item,
-        });
       default:
-        return;
+        return yield call(useInternalSaga, {
+          api: "LIST",
+          doc,
+          props,
+          item,
+          service,
+        });
     }
   } catch (e) {
     return yield call(error, e);
   }
-}
-
-//Callback
-function* success() {
-  yield put({
-    type: COMPONENT.SUCCESS,
-  });
-}
-function* error(error) {
-  yield put({
-    type: COMPONENT.FAIL,
-    data: error,
-  });
-}
-function* loading() {
-  yield put({
-    type: COMPONENT.LOADING,
-  });
 }
 
 export function* interact() {

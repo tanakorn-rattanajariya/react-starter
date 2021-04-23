@@ -16,9 +16,9 @@ export default class useNReduxReducer {
         );
         this.api = _request[index];
       } else if (_request[0] === "INTERACT") {
-        if (_request[2] && _request[3]) {
-          this.doc = _request[2];
-          this.api = _request[3];
+        if (_request[1] && _request[2]) {
+          this.doc = _request[1];
+          this.api = _request[2];
         }
       }
     }
@@ -88,6 +88,8 @@ export default class useNReduxReducer {
         { key: this.action.data.id, ...this.action.data },
         ...this.state[list],
       ].sort((a, b) => (a.ord || 0) - (b.ord || 0));
+    }else{
+      record[list] = [this.action.data];
     }
     record[key] = this.action.data;
     return { ...record };

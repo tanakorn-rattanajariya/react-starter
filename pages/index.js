@@ -14,7 +14,7 @@ export default function Home() {
 function ComponentDidMount(props){
   const { action } = props;
   React.useEffect(() => {
-    action.example.listTest();
+    action.interact.postTest({ jskdkfds: "dsfsdf" });
   }, []);
   return <></>;
 }

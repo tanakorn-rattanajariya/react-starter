@@ -18,21 +18,34 @@ function replaceString(str) {
   return newStr;
 }
 function createDispatcher({ dispatch, service }) {
+  const svc = service.split("_").first().toUpperCase()
   return (classes || [])
     .map((v) => {
       return {
         [`get${replaceString(v)}`]: (item, id, props) =>
-          dispatch(actions[service]("GET", v.toUpperCase(), item, id, props)),
+          dispatch(
+            actions[service]("GET", svc, v.toUpperCase(), item, id, props)
+          ),
         [`list${replaceString(v)}`]: (item, id, props) =>
-          dispatch(actions[service]("LIST", v.toUpperCase(), item, id, props)),
+          dispatch(
+            actions[service]("LIST", svc, v.toUpperCase(), item, id, props)
+          ),
         [`post${replaceString(v)}`]: (item, id, props) =>
-          dispatch(actions[service]("POST", v.toUpperCase(), item, id, props)),
+          dispatch(
+            actions[service]("POST", svc, v.toUpperCase(), item, id, props)
+          ),
         [`put${replaceString(v)}`]: (item, id, props) =>
-          dispatch(actions[service]("PUT", v.toUpperCase(), item, id, props)),
+          dispatch(
+            actions[service]("PUT", svc, v.toUpperCase(), item, id, props)
+          ),
         [`delete${replaceString(v)}`]: (item, id, props) =>
-          dispatch(actions[service]("DEL", v.toUpperCase(), item, id, props)),
+          dispatch(
+            actions[service]("DEL", svc, v.toUpperCase(), item, id, props)
+          ),
         [`clear${replaceString(v)}`]: (item, id, props) =>
-          dispatch(actions[service]("CLEAR", v.toUpperCase(), item, id, props)),
+          dispatch(
+            actions[service]("CLEAR", svc, v.toUpperCase(), item, id, props)
+          ),
       };
     })
     .reduce((a, b) => ({ ...a, ...b }), {});
