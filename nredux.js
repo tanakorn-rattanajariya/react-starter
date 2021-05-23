@@ -7,12 +7,13 @@ function replaceString(str) {
   )}`;
   var newStr = "";
   for (var i = 0; i < toCamel.length; i++) {
-    if (toCamel[i] === "-") {
+    if (toCamel[i] === "-" || toCamel[i] === "_") {
       if (toCamel.length > i + 1) {
         newStr += toCamel[i + 1].toUpperCase();
         i += 2;
       }
     }
+    
     newStr += toCamel[i];
   }
   return newStr;
@@ -38,10 +39,8 @@ function createDispatcher({ dispatch, service }) {
           dispatch(
             actions[service]("PUT", svc, v.toUpperCase(), item, id, props)
           ),
-        [`delete${replaceString(v)}`]: (item, id, props) =>
-          dispatch(
-            actions[service]("DEL", svc, v.toUpperCase(), item, id, props)
-          ),
+        [`delete${replaceString(v)}`]: (id, props) =>
+          dispatch(actions[service]("DEL", svc, v.toUpperCase(), id, props)),
         [`clear${replaceString(v)}`]: (item, id, props) =>
           dispatch(
             actions[service]("CLEAR", svc, v.toUpperCase(), item, id, props)
@@ -61,6 +60,11 @@ function useNReduxDispatcher(dispatch) {
           [b]: createDispatcher({
             dispatch,
             service: `${b}_request`,
+            actions,
+          }),
+          [`d_${b}`]: createDispatcher({
+            dispatch,
+            service: `${b}_debounce_request`,
             actions,
           }),
         }),

@@ -123,10 +123,10 @@ function* del(actions) {
 function* list(actions) {
   const { item, doc, id, props } = actions;
   try {
-    yield call(_super.loading);
+    yield fork(_super.loading);
     switch (actions.doc) {
       default:
-        return yield call(_super.list, {
+        return yield fork(_super.list, {
           item,
           doc,
           id,
@@ -138,6 +138,6 @@ function* list(actions) {
   }
 }
 export function* example() {
-  const { EXAMPLE_REQUEST } = types;
-  yield takeEvery(EXAMPLE_REQUEST, request);
+  const { EXAMPLE_REQUEST ,MATCHING_DEBOUNCE_REQUEST} = types;
+  yield takeEvery(EXAMPLE_REQUEST,MATCHING_DEBOUNCE_REQUEST, request);
 }

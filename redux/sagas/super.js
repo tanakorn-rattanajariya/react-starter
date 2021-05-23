@@ -1,7 +1,7 @@
 import { put, fork, call, take, takeEvery, throttle } from "redux-saga/effects";
 import { COMPONENT, API, INTERACT } from "../actions/type";
 import service from "../services";
-
+import Router from "next/router";
 function* success(data) {
   yield put({
     type: COMPONENT.SUCCESS,
@@ -36,15 +36,18 @@ function* loading(component) {
  * @param id id of object
  * @param context additional text in service
  **/
-function* get({ uri, doc, id, context, mcs }) {
-  const _loading = `loading_${uri.replace(/-/g, "_").toLowerCase()}`;
-  const _uri = `/${uri}${context ? context : ""}${id ? `/${id}` : ""}`;
+function* get({ doc, id, context, mcs, customService }) {
+  const _uri = `${mcs ? `${mcs.toLowerCase()}/` : ""}${doc
+    .toLowerCase()
+    .replace(/-/g, "/")
+    .replace(/_/g, "-")}${id ? `/${id}` : ""}`;
+  const _loading = `loading_${doc.toLowerCase().replace(/-/g, "_")}`;
   try {
     yield call(loading, _loading);
-    let response = yield call(service.get, _uri);
+    let response = yield call(customService || service.get, _uri);
     yield put({
       type: API[mcs][doc]["GET"]["SUCCESS"],
-      data: response.data,
+      data: response?.data || response,
     });
     return yield call(complete, _loading);
   } catch (e) {
@@ -60,22 +63,23 @@ function* get({ uri, doc, id, context, mcs }) {
  * @param item payload in project
  **/
 function* list({ doc, item, id, mcs }) {
-  const _uri = `${doc.toLowerCase().replace(/-/g, "/").replace(/_/g, "-")}${
-    id ? `/${id}` : ""
-  }`;
+  const _uri = `${mcs ? `${mcs.toLowerCase()}/` : ""}${doc
+    .toLowerCase()
+    .replace(/-/g, "/")
+    .replace(/_/g, "-")}${id ? `/${id}` : ""}`;
   const _loading = `loading_${doc.toLowerCase().replace(/-/g, "_")}`;
   try {
-    yield call(loading, _loading);
+    yield fork(loading, _loading);
     let response = yield call(service.get, _uri, item);
     yield put({
       type: API[mcs][doc]["LIST"]["SUCCESS"],
       data: response.data.content || response.data.results || response.data,
     });
-    return yield call(complete, _loading);
+    return yield fork(complete, _loading);
   } catch (e) {
     console.log(e);
-    yield call(error, e?.response?.request?.responseText);
-    yield call(complete);
+    yield fork(error, e?.response?.request?.responseText);
+    yield fork(complete);
     return;
   }
 }
@@ -89,27 +93,37 @@ function* list({ doc, item, id, mcs }) {
  * @param isback boolean checking that post function is not back
  * @param router router for react native
  **/
-function* post({ doc, item, id, isback = true, router, mcs }) {
-  const _uri = `${doc.toLowerCase().replace(/-/g, "/").replace(/_/g, "-")}${
-    id ? `/${id}` : ""
-  }`;
+function* post({
+  doc,
+  item,
+  id,
+  isback = true,
+  router,
+  mcs,
+  customService,
+  forceMessage,
+}) {
+  const _uri = `${mcs ? `${mcs.toLowerCase()}/` : ""}${doc
+    .toLowerCase()
+    .replace(/-/g, "/")
+    .replace(/_/g, "-")}${id ? `/${id}` : ""}`;
   const _loading = `loading_${doc.toLowerCase().replace(/-/g, "_")}`;
   try {
     yield call(loading, _loading);
-    let response = yield call(service.post, _uri, item);
+    let response = yield call(customService || service.post, _uri, item);
     yield put({
       type: API[mcs][doc]["POST"]["SUCCESS"],
-      data: response.data,
+      data: response?.data || response,
     });
-    if (isback) {
+    if (isback || forceMessage) {
       yield call(success, _loading);
     } else {
       yield call(complete, _loading);
     }
-    return isback && router?.goBack();
+    return isback && Router.back();
   } catch (e) {
     console.log(e);
-    yield call(error, e?.response?.request?.responseText);
+    yield call(error, e?.response?.request?.responseText || e.message);
     yield call(complete);
   }
 }
@@ -124,9 +138,10 @@ function* post({ doc, item, id, isback = true, router, mcs }) {
  * @param context additional text in service
  **/
 function* update({ doc, item, id, context, props = {}, mcs }) {
-  const _uri = `${doc.toLowerCase().replace(/-/g, "/").replace(/_/g, "-")}${
-    id ? `/${id}` : ""
-  }`;
+  const _uri = `${mcs ? `${mcs.toLowerCase()}/` : ""}${doc
+    .toLowerCase()
+    .replace(/-/g, "/")
+    .replace(/_/g, "-")}${id ? `/${id}` : ""}`;
   const _loading = `loading_${doc.toLowerCase().replace(/-/g, "_")}`;
   try {
     yield call(loading, _loading);
@@ -150,19 +165,23 @@ function* update({ doc, item, id, context, props = {}, mcs }) {
  * @param id id of object
  * @param context additional text in service
  **/
-function* del({ doc, uri, id, context, mcs }) {
-  const _loading = `loading_${uri.replace(/-/g, "_").toLowerCase()}`;
-  const _uri = `${uri}${context ? context : ""}${id ? `/${id}` : ""}`;
+function* del({ doc, id, mcs }) {
+  const _uri = `${mcs ? `${mcs.toLowerCase()}/` : ""}${doc
+    .toLowerCase()
+    .replace(/-/g, "/")
+    .replace(/_/g, "-")}${id ? `/${id}` : ""}`;
+  const _loading = `loading_${doc.toLowerCase().replace(/-/g, "_")}`;
   try {
     yield call(loading, _loading);
     let response = yield call(service.delete, _uri);
     yield put({
       type: API[mcs][doc]["DEL"]["SUCCESS"],
-      data: response.data,
+      data: id,
     });
     yield call(success, _loading);
-    return history.back();
+    return Router.back();
   } catch (e) {
+    console.log(e);
     yield call(error, e?.response?.request?.responseText);
     yield call(complete);
   }
