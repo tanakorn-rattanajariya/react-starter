@@ -40,7 +40,9 @@ function createDispatcher({ dispatch, service }) {
             actions[service]("PUT", svc, v.toUpperCase(), item, id, props)
           ),
         [`delete${replaceString(v)}`]: (id, props) =>
-          dispatch(actions[service]("DEL", svc, v.toUpperCase(), id, props)),
+          dispatch(
+            actions[service]("DEL", svc, v.toUpperCase(), null, id, props)
+          ),
         [`clear${replaceString(v)}`]: (item, id, props) =>
           dispatch(
             actions[service]("CLEAR", svc, v.toUpperCase(), item, id, props)

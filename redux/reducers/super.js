@@ -38,7 +38,6 @@ export default class useNReduxReducer {
     const { doc, api, mcs } = this;
     const data = doc.toLowerCase();
     const list = `${data}s`;
-
     if (mcs === _state || (mcs === "" && _state === "interact")) {
       switch (api) {
         case "GET":
@@ -74,21 +73,14 @@ export default class useNReduxReducer {
     let record = this.state;
     const _key = key.replace(/-/g, "_");
     const _data = data.replace(/-/g, "_");
-
-    const dicts = (record[_key] || []).toDict();
-    const _dicts = (this.action.data || []).toDict();
-
-    record[_key] = [
-      ...(record[_key] || []).map((v) => (_dicts[v[val]] ? _dicts[v[val]] : v)),
-      ...(this.action.data || [])
-        .map((v) =>
-          dicts[v[val]] === undefined ? { ...v, key: v[val] } : null
-        )
-        .filter((f) => f),
-    ].map((v) => ({
-      ...v,
-      key: v[val],
-    }));
+    if ((this.action.data || []).length === 0){
+      record[_key] = []
+    }else{
+      record[_key] = this.action.data
+      .map((v) => ({ ...v, key: v[val] }))
+      .sort((a, b) => (a.ord || 0) - (b.ord || 0));
+    }
+    
     record[_data] = null;
     return { ...record };
   }
@@ -106,9 +98,9 @@ export default class useNReduxReducer {
     const _key = key.replace(/-/g, "_");
     if (record[_list]) {
       record[_list] = [
-        { [_key]: this.action.data.id, ...this.action.data },
+        { [_key]: this.action.data?.id, ...this.action.data },
         ...this.state[_list],
-      ].sort((a, b) => (a.ord || 0) - (b.ord || 0));
+      ].sort((a, b) => (a?.ord || 0) - (b?.ord || 0));
     } else {
       record[_list] = [this.action.data];
     }
@@ -134,19 +126,18 @@ export default class useNReduxReducer {
     return { ...record };
   }
   delete(key = "list", val = "uid") {
-    try {
-      let record = this.state;
-      const _key = key.replace(/-/g, "_");
-      record[_key] = (this.state[_key] || [])
-        .filter((v) => {
-          console.log(v[val], this.action?.data);
-          return v[val] !== this.action?.data;
-        })
-        .sort((a, b) => (a.ord || 0) - (b.ord || 0));
-      return { ...record };
-    } catch (e) {
-      console.log(e);
-    }
+    let record = this.state;
+    const _key = key.replace(/-/g, "_");
+    record[_key] = (this.state[_key] || [])
+      .filter((v) =>
+        {
+          return Array.isArray(this.action?.data)
+            ? !(this.action?.data || []).includes(v[val])
+            : this.action?.data !== v[val];
+        }
+      )
+      .sort((a, b) => (a.ord || 0) - (b.ord || 0));
+    return { ...record };
   }
   insertOrUpdate(key = "list") {
     let record = this.state;

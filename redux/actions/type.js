@@ -75,6 +75,7 @@ const requests = (api || []).reduce(
   (a, b) => ({
     ...a,
     [`${b.toUpperCase()}_REQUEST`]: `${b.toUpperCase()}_REQUEST`,
+    [`${b.toUpperCase()}_DEBOUNCE_REQUEST`]: `${b.toUpperCase()}_DEBOUNCE_REQUEST`,
   }),
   {}
 );

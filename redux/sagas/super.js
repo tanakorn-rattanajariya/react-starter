@@ -1,4 +1,12 @@
-import { put, fork, call, take, takeEvery, throttle } from "redux-saga/effects";
+import {
+  put,
+  fork,
+  call,
+  take,
+  takeEvery,
+  throttle,
+  select,
+} from "redux-saga/effects";
 import { COMPONENT, API, INTERACT } from "../actions/type";
 import service from "../services";
 import Router from "next/router";
@@ -29,6 +37,7 @@ function* loading(component) {
     component,
   });
 }
+const getToken = (state) => state?.matching?.cognito_session?.idToken?.jwtToken;
 /**
  * @desc Get: GET in RestAPI
  * @param uri url of service
@@ -37,6 +46,7 @@ function* loading(component) {
  * @param context additional text in service
  **/
 function* get({ doc, id, context, mcs, customService }) {
+  const token = yield select(getToken);
   const _uri = `${mcs ? `${mcs.toLowerCase()}/` : ""}${doc
     .toLowerCase()
     .replace(/-/g, "/")
@@ -44,7 +54,7 @@ function* get({ doc, id, context, mcs, customService }) {
   const _loading = `loading_${doc.toLowerCase().replace(/-/g, "_")}`;
   try {
     yield call(loading, _loading);
-    let response = yield call(customService || service.get, _uri);
+    let response = yield call(customService || service.get, token, _uri);
     yield put({
       type: API[mcs][doc]["GET"]["SUCCESS"],
       data: response?.data || response,
@@ -52,7 +62,7 @@ function* get({ doc, id, context, mcs, customService }) {
     return yield call(complete, _loading);
   } catch (e) {
     console.log(e);
-    return;
+    return yield call(error, e);
   }
 }
 /**
@@ -63,6 +73,7 @@ function* get({ doc, id, context, mcs, customService }) {
  * @param item payload in project
  **/
 function* list({ doc, item, id, mcs }) {
+  const token = yield select(getToken);
   const _uri = `${mcs ? `${mcs.toLowerCase()}/` : ""}${doc
     .toLowerCase()
     .replace(/-/g, "/")
@@ -70,7 +81,7 @@ function* list({ doc, item, id, mcs }) {
   const _loading = `loading_${doc.toLowerCase().replace(/-/g, "_")}`;
   try {
     yield fork(loading, _loading);
-    let response = yield call(service.get, _uri, item);
+    let response = yield call(service.get, token, _uri, item);
     yield put({
       type: API[mcs][doc]["LIST"]["SUCCESS"],
       data: response.data.content || response.data.results || response.data,
@@ -78,7 +89,11 @@ function* list({ doc, item, id, mcs }) {
     return yield fork(complete, _loading);
   } catch (e) {
     console.log(e);
-    yield fork(error, e?.response?.request?.responseText);
+    yield put({
+      type: API[mcs][doc]["LIST"]["SUCCESS"],
+      data: []
+    });
+    yield fork(error, e?.response?.data?.detail || e?.response?.status);
     yield fork(complete);
     return;
   }
@@ -103,6 +118,7 @@ function* post({
   customService,
   forceMessage,
 }) {
+  const token = yield select(getToken);
   const _uri = `${mcs ? `${mcs.toLowerCase()}/` : ""}${doc
     .toLowerCase()
     .replace(/-/g, "/")
@@ -110,7 +126,7 @@ function* post({
   const _loading = `loading_${doc.toLowerCase().replace(/-/g, "_")}`;
   try {
     yield call(loading, _loading);
-    let response = yield call(customService || service.post, _uri, item);
+    let response = yield call(customService || service.post, token, _uri, item);
     yield put({
       type: API[mcs][doc]["POST"]["SUCCESS"],
       data: response?.data || response,
@@ -123,7 +139,10 @@ function* post({
     return isback && Router.back();
   } catch (e) {
     console.log(e);
-    yield call(error, e?.response?.request?.responseText || e.message);
+    yield call(
+      error,
+      e?.response?.data?.detail || e.message || e?.response?.status
+    );
     yield call(complete);
   }
 }
@@ -138,6 +157,7 @@ function* post({
  * @param context additional text in service
  **/
 function* update({ doc, item, id, context, props = {}, mcs }) {
+  const token = yield select(getToken);
   const _uri = `${mcs ? `${mcs.toLowerCase()}/` : ""}${doc
     .toLowerCase()
     .replace(/-/g, "/")
@@ -145,7 +165,7 @@ function* update({ doc, item, id, context, props = {}, mcs }) {
   const _loading = `loading_${doc.toLowerCase().replace(/-/g, "_")}`;
   try {
     yield call(loading, _loading);
-    let response = yield call(service.put, _uri, item);
+    let response = yield call(service.put, token, _uri, item);
     yield put({
       type: API[mcs][doc]["PUT"]["SUCCESS"],
       data: response.data,
@@ -153,7 +173,7 @@ function* update({ doc, item, id, context, props = {}, mcs }) {
     });
     return yield call(success, _loading);
   } catch (e) {
-    yield call(error, e?.response?.request?.responseText);
+    yield call(error, e?.response?.data?.detail || e?.response?.status);
     yield call(complete);
   }
 }
@@ -165,7 +185,8 @@ function* update({ doc, item, id, context, props = {}, mcs }) {
  * @param id id of object
  * @param context additional text in service
  **/
-function* del({ doc, id, mcs }) {
+function* del({ doc, id, mcs, deletedList, isback = true }) {
+  const token = yield select(getToken);
   const _uri = `${mcs ? `${mcs.toLowerCase()}/` : ""}${doc
     .toLowerCase()
     .replace(/-/g, "/")
@@ -173,16 +194,21 @@ function* del({ doc, id, mcs }) {
   const _loading = `loading_${doc.toLowerCase().replace(/-/g, "_")}`;
   try {
     yield call(loading, _loading);
-    let response = yield call(service.delete, _uri);
+    let response = yield call(service.delete, token, _uri, deletedList);
     yield put({
       type: API[mcs][doc]["DEL"]["SUCCESS"],
-      data: id,
+      data: id || deletedList,
     });
     yield call(success, _loading);
-    return Router.back();
+    if (isback) {
+      return Router.back();
+    } else {
+      return;
+    }
   } catch (e) {
     console.log(e);
-    yield call(error, e?.response?.request?.responseText);
+
+    yield call(error, e?.response?.data?.detail || e?.response?.status);
     yield call(complete);
   }
 }
@@ -192,12 +218,13 @@ function* del({ doc, id, mcs }) {
  * @param doc document of the project
  **/
 function* clear({ doc, mcs }) {
+  const token = yield select(getToken);
   try {
     return yield put({
       type: API[mcs][doc]["CLEAR"]["SUCCESS"],
     });
   } catch (e) {
-    yield call(error, e?.response?.request?.responseText);
+    yield call(error, e?.response?.data?.detail || e?.response?.status);
     yield call(complete);
   }
 }
