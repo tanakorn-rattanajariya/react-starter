@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "styles/*": ["src/styles/*"],
+      "logics/*": ["src/logics/*"],
+      "model/*": ["src/model/*"],
+      "store/*": ["src/store/*"],
+      "core/*": ["src/core/*"],
+      "pages/*": ["src/pages/*"],
+      "methods/*": ["src/methods/*"],
+      "constants/*": ["src/constants/*"],
+      "components/*": ["src/components/*"],
+      "elements/*": ["src/elements/*"],
+      "columns/*": ["src/columns/*"],
+      "fields/*": ["src/fields/*"],
+      "images/*": ["src/public/images/*"],
+      "mock/*": ["src/mock/*"],
+      "workers/*": ["src/workers/*"],
+      "helpers/*": ["src/helpers/*"],
+      "hooks/*": ["src/hooks/*"],
+      "src/*": ["src/*"]
+    }
+  }
+}

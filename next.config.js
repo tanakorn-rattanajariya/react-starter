@@ -2,15 +2,30 @@ const path = require("path");
 const dotenv = require("dotenv");
 
 const node_env = process.env.NODE_ENV;
-const node_project = process.env.NODE_PROJECT
-  ? process.env.NODE_PROJECT
-  : "default";
-require("dotenv").config({ path: `./.env/.env.${node_env}.${node_project}` });
+const deployment = process.env.DEPLOYMENT ? process.env.DEPLOYMENT : "default";
+require("dotenv").config({ path: `./.env/.env.${node_env}.${deployment}` });
 const webpack = require("webpack");
 module.exports = {
+  future: {
+    webpack5: true,
+  },
   parserOptions: {
     ecmaVersion: 5,
   },
+  typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: true,
+  },
+  exportPathMap: async function () {
+    return {
+      // "/": { page: "/invoice" },
+    };
+  },
+  poweredByHeader: false,
+  reactStrictMode: true,
   compress: true,
   publicRuntimeConfig: {
     localeSubpaths:
@@ -19,11 +34,11 @@ module.exports = {
         : "none",
     FEATURES: process.env.FEATURES,
   },
-  webpack: (config, { dev }) => {
+  webpack: (config, { dev, isServer }) => {
     config.module.rules.push(
       {
         test: /\.(less)/,
-        loader: [
+        use: [
           {
             loader: "emit-file-loader",
             options: {
@@ -32,7 +47,7 @@ module.exports = {
           },
           {
             loader: "babel-loader",
-            query: { compact: false },
+            options: { compact: false },
           },
           {
             loader: "raw-loader",
@@ -85,7 +100,7 @@ module.exports = {
         ],
       },
       {
-        test: /\.(jpe?g|png|svg|gif|pdf|ico)$/,
+        test: /\.(jpe?g|png|svg|gif|pdf|ico|ttf|woff)$/,
         use: [
           {
             loader: "emit-file-loader",
@@ -103,6 +118,24 @@ module.exports = {
             },
           },
         ],
+      },
+      {
+        test: /worker\.js$/,
+        use: [
+          {
+            loader: "worker-loader",
+            options: {
+              name: "js/worker.[hash].js",
+            },
+          },
+          {
+            loader: "babel-loader",
+            options: {
+              babelrc: false,
+              extends: path.resolve(__dirname, "./.babelrc"),
+            },
+          },
+        ],
       }
     );
     config.plugins.push(new webpack.EnvironmentPlugin(process.env));
@@ -112,6 +145,8 @@ module.exports = {
         // Other global variables
       })
     );
+    config.output.hotUpdateMainFilename =
+      "static/webpack/[fullhash].[runtime].hot-update.json";
     return config;
   },
 };

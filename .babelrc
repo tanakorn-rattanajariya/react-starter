@@ -1,40 +1,53 @@
 {
-    "env": {
-        "test": {
-            "plugins": ["@babel/plugin-transform-modules-commonjs"]
-        }
-    },
-    "presets": ["@babel/preset-env", "next/babel", "@babel/preset-react"],
-    "plugins": [
-        "@babel/plugin-proposal-class-properties",
-        "@babel/plugin-transform-runtime",
-        "transform-flow-strip-types",
-        [
-            "styled-components",
-            {
-                "ssr": true,
-                "displayName": true,
-                "preprocess": false
-            }
-        ],
-        ["import", {
-            "libraryName": "antd"
-        }],
-        [
-            "module-resolver",
-            {
-                "root": ["./"],
-                "alias": {
-                    "pages": "./pages",
-                    "components": "./components",
-                    "actions": "./redux/actions",
-                    "images": "./public/images",
-                    "Colors": "./public/colors/colors.js",
-                    "logics": "./logics"
-                }
-            }
-        ],
-
+  "env": {
+    "test": {
+      "plugins": ["@babel/plugin-transform-modules-commonjs"]
+    }
+  },
+  "presets": ["@babel/preset-env", "next/babel", "@babel/preset-react"],
+  "plugins": [
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-transform-runtime",
+    "transform-flow-strip-types",
+    [
+      "styled-components",
+      {
+        "ssr": true,
+        "displayName": true,
+        "preprocess": false
+      }
     ],
-
+    [
+      "import",
+      {
+        "libraryName": "antd"
+      }
+    ],
+    [
+      "module-resolver",
+      {
+        "root": ["/"],
+        "alias": {
+          "pages": "./src/pages",
+          "store": "./src/store",
+          "components": "./src/components",
+          "actions": "./src/redux/actions",
+          "images": "./src/public/images",
+          "Colors": "./src/public/colors/colors.js",
+          "logics": "./src/logics",
+          "fields": "./src/fields",
+          "constants": "./src/constants",
+          "columns": "./src/columns",
+          "core": "./src/core",
+          "elements": "./src/elements",
+          "formatters": "./src/formatters",
+          "methods": "./src/methods",
+          "model": "./src/model",
+          "hooks": "./src/hooks",
+          "helpers": "./src/helpers",
+          "fonts": "./src/public/fonts"
+        }
+      }
+    ]
+  ]
 }

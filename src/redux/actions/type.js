@@ -1,4 +1,4 @@
-import { api, classes } from "../../nredux.config";
+import { api, classes } from "../../../nredux.config";
 //API
 const APIs = ["LIST", "GET", "POST", "PUT", "DEL", "CLEAR"];
 //TYPES
